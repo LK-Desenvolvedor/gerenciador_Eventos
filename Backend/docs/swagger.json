@@ -1,0 +1,65 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "Event Management System API",
+      "version": "1.0.0",
+      "description": "API para gerenciamento de eventos"
+    },
+    "host": "localhost:5000",
+    "basePath": "/",
+    "schemes": ["http"],
+    "paths": {
+      "/auth/register": {
+        "post": {
+          "summary": "Registrar um novo usuário",
+          "tags": ["Auth"],
+          "parameters": [
+            {
+              "name": "body",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          ],
+          "responses": {
+            "201": { "description": "Usuário registrado com sucesso" },
+            "400": { "description": "Erro de cadastro" },
+            "500": { "description": "Erro do servidor" }
+          }
+        }
+      },
+      "/auth/login": {
+        "post": {
+          "summary": "Login de usuário",
+          "tags": ["Auth"],
+          "parameters": [
+            {
+              "name": "body",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": { "description": "Login bem-sucedido" },
+            "400": { "description": "Usuário inválido" },
+            "500": { "description": "Erro do servidor" }
+          }
+        }
+      }
+    }
+  }
+  

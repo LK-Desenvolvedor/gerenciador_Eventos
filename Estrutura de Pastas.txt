@@ -1,0 +1,55 @@
+/gerenciador_Eventos
+│
+├── /backend
+│   ├── /controllers
+│   │   ├── authController.js
+│   │   ├── eventController.js
+│   │   └── participantController.js
+│   ├── /middleware
+│   │   └── auth.js
+│   ├── /models
+│   │   ├── User.js
+│   │   ├── Event.js
+│   │   └── Participant.js
+│   ├── /routes
+│   │   ├── authRoutes.js
+│   │   ├── eventRoutes.js
+│   │   └── participantRoutes.js
+│   ├── /utils
+│   │   └── errorHandler.js
+│   ├── /docs
+│   │   └── swagger.json
+│   ├── app.js
+│   ├── database.js
+│   ├── server.js
+│   ├── package-lock.json
+│   └── package.json
+│
+├── /frontend
+│   ├── /public
+│   ├── /src
+│   │   ├── /components
+│   │   │   ├── EventList.js
+│   │   │   ├── EventForm.js
+│   │   │   ├── Login.js
+│   │   │   ├── Register.js
+│   │   │   └── Participants.js
+│   │   ├── /redux
+│   │   │   ├── /actions
+│   │   │   │   ├── eventActions.js
+│   │   │   │   └── userActions.js
+│   │   │   ├── /reducers
+│   │   │   │   ├── eventReducer.js
+│   │   │   │   └── userReducer.js
+│   │   │   └── store.js
+│   │   ├── /services
+│   │   │   └── api.js
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   ├── App.css
+│   │   └── index.css
+│   ├── package.json
+│   └── README.md
+│
+├── .gitignore
+└── README.md

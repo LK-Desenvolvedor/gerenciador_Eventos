@@ -1,0 +1,17 @@
+node_modules/
+build/
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+@testing-library/
+axios/
+react/
+react-dom/
+react-router-dom/
+react-scripts/
+web-vitals/
+
+coverage/
+dist/

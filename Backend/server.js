@@ -1,11 +1,26 @@
-const app = require("./app");
-const connectDB = require("./database");
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const authRoutes = require("./routes/authRoutes");
+const eventRoutes = require("./routes/eventRoutes");
+const participantRoutes = require("./routes/participantRoutes");
+const errorHandler = require("./utils/errorHandler");
 
-const PORT = process.env.PORT || 5000;
+const app = express();
 
-connectDB();
+app.use(cors({
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200
+}));
+app.use(express.json());
 
-app.listen(PORT, () => {
-  console.log(`Servidor está funcionando na porta ${PORT}`);
+app.get("/", (req, res) => {
+  res.status(200).json({ msg: "Bem vindo" });
 });
+
+app.use("/auth", authRoutes);
+app.use("/events", eventRoutes);
+app.use("/participants", participantRoutes);
+
+app.use(errorHandler);
+
+module.exports = app;

@@ -1,23 +1,12 @@
-const express = require("express");
-const cors = require("cors");
-const authRoutes = require("./routes/authRoutes");
-const eventRoutes = require("./routes/eventRoutes");
-const participantRoutes = require("./routes/participantRoutes");
-const errorHandler = require("./utils/errorHandler");
+const app = require("./server");
+const connectDB = require("./database");
+require('dotenv').config();
 
-const app = express();
+connectDB();
 
-app.use(cors());
-app.use(express.json());
+const PORT = process.env.PORT || 5000;
 
-app.get("/", (req, res) => {
-  res.status(200).json({ msg: "Bem vindo" });
+app.listen(PORT, () => {
+  console.log(`Servidor está funcionando na porta ${PORT}`);
 });
 
-app.use("/auth", authRoutes);
-app.use("/events", eventRoutes);
-app.use("/participants", participantRoutes);
-
-app.use(errorHandler);
-
-module.exports = app;

@@ -1,0 +1,75 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+  }
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+.content {
+    background-color: #fff; /* Cor de fundo da área de conteúdo */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+    padding: 20px;
+    width: 100%;
+    max-width: 800px;
+  }  
+  
+  h2 {
+    color: #333;
+  }
+  
+  form {
+    margin: 20px 0;
+  }
+  
+  label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+  
+  input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+  
+  button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  .App {
+    text-align: center;
+  }
+  
+  nav {
+    margin-bottom: 20px;
+  }
+  
+  .MuiContainer-root {
+    margin-top: 20px;
+  }
+  
+  .MuiButton-root {
+    margin-right: 10px;
+  }
+  
+/* novo */
+
+

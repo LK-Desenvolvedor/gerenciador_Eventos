@@ -27,29 +27,40 @@
 │
 ├── /frontend
 │   ├── /public
+│   │   ├── /img
+│   │   │   ├── evento1.jpg
+│   │   │   ├── evento2.jpg
+│   │   │   ├── evento3.jpg
+│   │   │   └── index.html
 │   ├── /src
-│   │   ├── /components
-│   │   │   ├── EventList.js
-│   │   │   ├── EventForm.js
-│   │   │   ├── Login.js
-│   │   │   ├── Register.js
-│   │   │   └── Participants.js
-│   │   ├── /redux
-│   │   │   ├── /actions
-│   │   │   │   ├── eventActions.js
-│   │   │   │   └── userActions.js
-│   │   │   ├── /reducers
-│   │   │   │   ├── eventReducer.js
-│   │   │   │   └── userReducer.js
-│   │   │   └── store.js
+│   │   ├── /pages
+│   │   │   ├── /EventForm   
+│   │   │   │   ├── EventForm.css
+│   │   │   │   └── EventForm.js
+│   │   │   ├── /EventList   
+│   │   │   │   ├── EventList.js
+│   │   │   │   └── EventList.js
+│   │   │   ├── /Home   
+│   │   │   │   ├── Home.css
+│   │   │   │   └── Home.js
+│   │   │   ├── /Login   
+│   │   │   │   ├── Login.css
+│   │   │   │   └── Login.js
+│   │   │   ├── /Register   
+│   │   │   │   ├── Register.css
+│   │   │   │   └── Register.js
 │   │   ├── /services
 │   │   │   └── api.js
+│   │   │   │
+│   │   │   │   
+│   │   │   │   
+│   │   │   │
+│   │   ├── /styles
+│   │   │   ├── App.css
+│   │   │   └── index.css
 │   │   ├── App.js
 │   │   ├── index.js
-│   │   ├── App.css
-│   │   └── index.css
-│   ├── package.json
-│   └── README.md
+│   ├── .env
+│   └── package.json
 │
-├── .gitignore
-└── README.md
+

@@ -1,0 +1,30 @@
+.home-container {
+    padding: 20px;
+  }
+  
+  .recent-events {
+    margin-top: 20px;
+  }
+  
+  .event {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .event img {
+    width: 200px;
+    height: 150px;
+    margin-right: 20px;
+  }
+  
+  .event-details {
+    flex: 1;
+  }
+  
+  footer {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+
+  

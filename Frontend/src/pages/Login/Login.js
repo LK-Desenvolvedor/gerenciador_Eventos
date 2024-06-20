@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import './Login.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AuthContext } from '../authContext';
 
 function Login() {
+  const { login } = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [wrongLogin, setWrongLogin] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -17,11 +18,15 @@ function Login() {
     })
     .then(response => {
       localStorage.setItem('token', response.data.token);
-      
+      localStorage.setItem('userType', response.data.tipo);
+
       toast.success('Login bem-sucedido!', {
         position: 'top-right',
         autoClose: 3000
       });
+
+      // Atualiza o estado de autenticação
+      login(response.data.tipo === 'admin');
 
       setTimeout(() => {
         if (response.data.tipo === 'admin') {
@@ -33,11 +38,9 @@ function Login() {
     })
     .catch(error => {
       console.error('Erro no login:', error);
-      setWrongLogin(true);
       toast.error('Erro no login. Por favor, tente novamente.', {
         position: 'top-right',
         autoClose: 3000
-
       });
     });
   }

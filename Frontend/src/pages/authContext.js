@@ -1,21 +1,33 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
 
-const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const login = (token, userType) => {
-    localStorage.setItem('token', token);
+  useEffect(() => {
+    // Check if there's a token in localStorage on mount and update the state accordingly
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Ideally, verify the token here (e.g., by making an API call)
+      // For now, we'll assume that having a token means the user is authenticated
+      setIsAuthenticated(true);
+      const userType = localStorage.getItem('userType');
+      setIsAdmin(userType === 'admin');
+    }
+  }, []);
+
+  const login = (isAdmin) => {
     setIsAuthenticated(true);
-    setIsAdmin(userType === 'admin');
+    setIsAdmin(isAdmin);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
     setIsAuthenticated(false);
     setIsAdmin(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('userType');
   };
 
   return (
@@ -24,5 +36,3 @@ const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthProvider;

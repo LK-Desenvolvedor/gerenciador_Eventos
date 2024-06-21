@@ -1,0 +1,218 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+  
+  header, footer {
+    text-align: center;
+    padding: 20px;
+
+  }
+  
+  h1, h2, h3, h4 {
+    margin: 0;
+  }
+  
+  p {
+    margin: 10px 0;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Estilos de Navegação */
+  nav ul {
+    list-style: none;
+    padding: 0;
+
+    border: 2px solid #4facfe;
+    border-radius: 10px;
+    display: inline-block;
+  }
+  
+  nav ul li {
+    display: inline;
+    margin-right: 15px;
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: #4facfe;
+  }
+  
+  nav ul li a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Estilos de Botões */
+  button {
+    background-color: #ff9800;
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #e68900;
+  }
+  
+  /* Estilos de Seções */
+  section {
+    padding: 50px 20px;
+  }
+  
+  .section-title {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+  
+  .events-grid {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .event {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 30%;
+    text-align: left;
+  }
+  
+  .event-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .event-details {
+    padding: 20px;
+  }
+  
+  .event-details h3 {
+    margin: 0;
+    font-size: 1.5em;
+  }
+  
+  .event-details p {
+    margin: 10px 0 0;
+    font-size: 1em;
+  }
+  
+  .testimonials {
+    background-color: #fff;
+  }
+  
+  .testimonial {
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+  }
+  
+  .testimonial p {
+    font-style: italic;
+    font-size: 1.1em;
+  }
+  
+  .testimonial h4 {
+    margin-top: 10px;
+    font-size: 1em;
+    font-weight: normal;
+    color: #555;
+  }
+  
+  .cta-section {
+    background-color: #4facfe;
+    color: white;
+    text-align: center;
+  }
+  
+  .cta-button {
+    background-color: #ff9800;
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background-color: #e68900;
+  }
+  
+  /* Estilos Responsivos */
+  @media (max-width: 1200px) {
+    .events-grid {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .event {
+      width: 80%;
+      margin-bottom: 20px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    header h1 {
+      font-size: 2em;
+    }
+  
+    header p {
+      font-size: 1em;
+    }
+  
+    .section-title {
+      font-size: 1.5em;
+    }
+  
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    header {
+      padding: 30px 10px;
+    }
+  
+    header h1 {
+      font-size: 1.5em;
+    }
+  
+    header p {
+      font-size: 0.9em;
+    }
+  
+    section {
+      padding: 30px 10px;
+    }
+  
+    .container {
+      padding: 10px;
+    }
+  
+    .testimonial {
+      padding: 15px;
+    }
+  }
+  

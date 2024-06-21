@@ -1,30 +1,115 @@
-.home-container {
-    padding: 20px;
-  }
-  
-  .recent-events {
-    margin-top: 20px;
-  }
-  
-  .event {
-    display: flex;
-    margin-bottom: 20px;
-  }
-  
-  .event img {
-    width: 200px;
-    height: 150px;
-    margin-right: 20px;
-  }
-  
-  .event-details {
-    flex: 1;
-  }
-  
-  footer {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
+/* Home.css */
 
-  
+.home-header {
+  padding: 50px 20px;
+  background: linear-gradient(to right, #4facfe, #00f2fe);
+  color: white;
+  text-align: center;
+}
+
+.home-header h1 {
+  font-size: 3em;
+}
+
+.home-header p {
+  font-size: 1.2em;
+}
+
+.about-section {
+  background: #ffffff;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.recent-events {
+  background: #f4f4f4;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.events-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.event {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 30%;
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.event:hover {
+  transform: translateY(-5px);
+}
+
+.event-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.event-details {
+  padding: 20px;
+}
+
+.event-details h3 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.event-details p {
+  margin: 10px 0 0;
+  font-size: 1em;
+}
+
+.testimonials {
+  background-color: #fff;
+}
+
+.testimonial {
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.testimonial p {
+  font-style: italic;
+  font-size: 1.1em;
+}
+
+.testimonial h4 {
+  margin-top: 10px;
+  font-size: 1em;
+  font-weight: normal;
+  color: #555;
+}
+
+.cta-section {
+  background-color: #4facfe;
+  color: white;
+  text-align: center;
+}
+
+.cta-button {
+  background-color: #ff9800;
+  border: none;
+  color: white;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #e68900;
+}

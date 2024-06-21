@@ -8,6 +8,8 @@ import EventList from './pages/EventList/EventList';
 import EventForm from './pages/EventForm/EventForm';
 import './styles/App.css';
 import './styles/index.css';
+import './styles/global.css';
+
 
 function App() {
   const { isAuthenticated, isAdmin, logout } = useContext(AuthContext);

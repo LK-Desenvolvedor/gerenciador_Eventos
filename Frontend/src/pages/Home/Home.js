@@ -1,5 +1,6 @@
 import React from 'react';
-import './Home.css'; // Estilos da página
+import { Link } from 'react-router-dom';
+import './Home.css'; 
 
 const Home = () => {
   return (
@@ -42,8 +43,7 @@ const Home = () => {
       </section>
 
       <section className="testimonials">
-      <img src="/img/evento4.jpg" alt="Evento 1" className="event-image" />
-
+        <img src="/img/evento4.jpg" alt="Evento 1" className="event-image" />
         <h2>O que dizem sobre nós</h2>
         <div className="testimonial">
           <p>"O Gerenciador de Eventos facilitou muito a organização dos nossos eventos anuais. Recomendo!"</p>
@@ -58,7 +58,9 @@ const Home = () => {
       <section className="cta-section">
         <h2>Pronto para gerenciar seus eventos?</h2>
         <p>Junte-se a nós e comece a organizar seus eventos hoje mesmo!</p>
-        <button className="cta-button">Cadastre-se Agora</button>
+        <Link to="/register">
+          <button className="cta-button">Cadastre-se Agora</button>
+        </Link>
       </section>
 
       <footer className="home-footer">

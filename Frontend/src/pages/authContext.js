@@ -1,33 +1,39 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode'; // Importação corrigida para jwtDecode
+import api from '../services/api';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check if there's a token in localStorage on mount and update the state accordingly
     const token = localStorage.getItem('token');
     if (token) {
-      // Ideally, verify the token here (e.g., by making an API call)
-      // For now, we'll assume that having a token means the user is authenticated
+      const decodedToken = jwtDecode(token); // Utilização correta de jwtDecode
       setIsAuthenticated(true);
-      const userType = localStorage.getItem('userType');
-      setIsAdmin(userType === 'admin');
+      setIsAdmin(decodedToken.tipo === 'admin');
     }
   }, []);
 
-  const login = (isAdmin) => {
-    setIsAuthenticated(true);
-    setIsAdmin(isAdmin);
+  const login = async (email, password) => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      const decodedToken = jwtDecode(token); // Utilização correta de jwtDecode
+      setIsAuthenticated(true);
+      setIsAdmin(decodedToken.tipo === 'admin');
+    } catch (error) {
+      console.error('Login falhou', error);
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
     setIsAuthenticated(false);
     setIsAdmin(false);
-    localStorage.removeItem('token');
-    localStorage.removeItem('userType');
   };
 
   return (
@@ -36,3 +42,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export { AuthContext };

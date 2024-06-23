@@ -4,17 +4,22 @@ const User = require("../models/User");
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, tipo } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Erro de cadastro: Email ou senha já existem" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Define o tipo de usuário, usando 'user' como padrão se não fornecido
+    const userType = tipo || 'user';
+
     const newUser = new User({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      tipo: userType
     });
 
     await newUser.save();
@@ -36,7 +41,7 @@ exports.login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Esqueceu sua senha?" });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, tipo: user.tipo }, process.env.JWT_SECRET, {
       expiresIn: "24h"
     });
     res.status(200).json({ token });

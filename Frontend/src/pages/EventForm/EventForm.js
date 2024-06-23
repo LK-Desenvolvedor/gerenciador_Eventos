@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import api from '../../services/api';
+import React, { useState } from "react";
+import axios from "axios";
 
 const EventForm = () => {
   const [events, setEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
-    title: '',
-    description: '',
-    date: '',
-    location: '',
-    imageUrl: '',
+    title: "",
+    description: "",
+    date: "",
+    location: "",
+    imageUrl: "",
   });
   const [editIndex, setEditIndex] = useState(-1);
 
@@ -17,21 +17,29 @@ const EventForm = () => {
     setNewEvent({ ...newEvent, [name]: value });
   };
 
-  const addEvent = () => {
-    if (
-      newEvent.title.trim() !== '' &&
-      newEvent.description.trim() !== '' &&
-      newEvent.date.trim() !== '' &&
-      newEvent.location.trim() !== ''
-    ) {
-      setEvents([...events, { ...newEvent }]);
-      setNewEvent({
-        title: '',
-        description: '',
-        date: '',
-        location: '',
-        imageUrl: '',
-      });
+  const addEvent = async () => {
+    try {
+      if (
+        newEvent.title.trim() !== "" &&
+        newEvent.description.trim() !== "" &&
+        newEvent.date.trim() !== "" &&
+        newEvent.location.trim() !== ""
+      ) {
+        await axios.post("http://localhost:5000/events", newEvent);
+        setEvents([...events, newEvent]);
+        setNewEvent({
+          title: "",
+          description: "",
+          date: "",
+          location: "",
+          imageUrl: "",
+        });
+      } else {
+        alert("Por favor, preencha todos os campos do evento.");
+      }
+    } catch (error) {
+      console.error("Erro ao criar evento", error);
+      alert("Falha ao criar evento. Por favor, tente novamente.");
     }
   };
 
@@ -43,100 +51,107 @@ const EventForm = () => {
   const saveEvent = async (event) => {
     event.preventDefault();
     try {
-      await api.post('/events', newEvent);
-      const updatedEvents = [...events];
-      updatedEvents[editIndex] = { ...newEvent };
-      setEvents(updatedEvents);
-      setNewEvent({
-        title: '',
-        description: '',
-        date: '',
-        location: '',
-        imageUrl: '',
-      });
-      setEditIndex(-1);
-      alert('Evento criado com sucesso!');
+      if (
+        newEvent.title.trim() !== "" &&
+        newEvent.description.trim() !== "" &&
+        newEvent.date.trim() !== "" &&
+        newEvent.location.trim() !== ""
+      ) {
+        if (editIndex === -1) {
+          await axios.post("http://localhost:5000/events", newEvent);
+          setEvents([...events, newEvent]);
+        } else {
+          await axios.put(
+            `http://localhost:5000/events/${events[editIndex]._id}`,
+            newEvent
+          );
+          const updatedEvents = [...events];
+          updatedEvents[editIndex] = { ...newEvent };
+          setEvents(updatedEvents);
+        }
+        setNewEvent({
+          title: "",
+          description: "",
+          date: "",
+          location: "",
+          imageUrl: "",
+        });
+        setEditIndex(-1);
+        alert("Evento criado/atualizado com sucesso!");
+      } else {
+        alert("Por favor, preencha todos os campos do evento.");
+      }
     } catch (error) {
-      console.error('Falha ao criar evento', error);
-      alert('Falha ao criar evento. Por favor, tente novamente.');
+      console.error("Falha ao criar/atualizar evento", error);
+      alert("Falha ao criar/atualizar evento. Por favor, tente novamente.");
     }
   };
 
-  const deleteEvent = (index) => {
-    const updatedEvents = events.filter((event, i) => i !== index);
-    setEvents(updatedEvents);
+  const deleteEvent = async (index) => {
+    try {
+      await axios.delete(`http://localhost:5000/events/${events[index]._id}`);
+      const updatedEvents = events.filter((event, i) => i !== index);
+      setEvents(updatedEvents);
+      alert("Evento deletado com sucesso!");
+    } catch (error) {
+      console.error("Falha ao deletar evento", error);
+      alert("Falha ao deletar evento. Por favor, tente novamente.");
+    }
   };
 
   return (
     <div>
       <h2>Create Event</h2>
       <form onSubmit={editIndex === -1 ? addEvent : saveEvent}>
-        <div>
-          <label>Title</label>
-          <input
-            type="text"
-            name="title"
-            value={newEvent.title}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={newEvent.description}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Date</label>
-          <input
-            type="date"
-            name="date"
-            value={newEvent.date}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Location</label>
-          <input
-            type="text"
-            name="location"
-            value={newEvent.location}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Image URL</label>
-          <input
-            type="text"
-            name="imageUrl"
-            value={newEvent.imageUrl}
-            onChange={handleInputChange}
-          />
-        </div>
+        <input
+          type="text"
+          name="title"
+          value={newEvent.title}
+          onChange={handleInputChange}
+          placeholder="Title"
+          required
+        />
+        <input
+          type="text"
+          name="description"
+          value={newEvent.description}
+          onChange={handleInputChange}
+          placeholder="Description"
+          required
+        />
+        <input
+          type="date"
+          name="date"
+          value={newEvent.date}
+          onChange={handleInputChange}
+          placeholder="Date"
+          required
+        />
+        <input
+          type="text"
+          name="location"
+          value={newEvent.location}
+          onChange={handleInputChange}
+          placeholder="Location"
+          required
+        />
+        <input
+          type="text"
+          name="imageUrl"
+          value={newEvent.imageUrl}
+          onChange={handleInputChange}
+          placeholder="Image URL"
+        />
         <button type="submit">
-          {editIndex === -1 ? 'Create Event' : 'Save Event'}
+          {editIndex === -1 ? "Create Event" : "Save Event"}
         </button>
       </form>
       <ul>
         {events.map((event, index) => (
           <li key={index}>
-            <div>
-              <strong>{event.title}</strong>
-              <p>{event.description}</p>
-              <p>Date: {event.date}</p>
-              <p>Location: {event.location}</p>
-              {event.imageUrl && <img src={event.imageUrl} alt="Event" />}
-            </div>
-            <div>
-              <button onClick={() => editEvent(index)}>Edit</button>
-              <button onClick={() => deleteEvent(index)}>Delete</button>
-            </div>
+            {event.title} - {event.date} - {event.location}
+            <button onClick={() => editEvent(index)}>Edit</button>
+            <button onClick={() => deleteEvent(index)}>Delete</button>
           </li>
         ))}
       </ul>

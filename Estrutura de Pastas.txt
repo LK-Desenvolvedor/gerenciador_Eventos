@@ -64,3 +64,1374 @@
 │   └── package.json
 │
 
+
+veja todo meu projeto, vou te enviar em duas partes, aguarde eu terminar de enviar:
+
+
+novo código backend:
+
+
+
+No BACKEND
+
+dentro da pasta controllers:
+
+//authController.js
+
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+
+exports.register = async (req, res) => {
+  try {
+    const { name, email, password, tipo } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Erro de cadastro: Email ou senha já existem" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Define o tipo de usuário, usando 'user' como padrão se não fornecido
+    const userType = tipo || 'user';
+
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      tipo: userType
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: "Conta registrada com sucesso!" });
+  } catch (error) {
+    console.error("Falha no registro", error);
+    res.status(500).json({ message: "OPS! :-( Algo inesperado ocorreu" });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Usuário inválido" });
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Esqueceu sua senha?" });
+    }
+    const token = jwt.sign({ userId: user._id, tipo: user.tipo }, process.env.JWT_SECRET, {
+      expiresIn: "24h"
+    });
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Falha de login", error);
+    res.status(500).json({ message: "Desculpe o incoveniente, já vamos resolver o problema" });
+  }
+};
+
+
+
+//eventController.js
+
+const Event = require('../models/Event');
+
+exports.createEvent = async (req, res) => {
+  try {
+    const { title, description, date, location, organizer } = req.body;
+    const newEvent = new Event({
+      title,
+      description,
+      date,
+      location,
+      organizer
+    });
+    const event = await newEvent.save();
+    res.status(201).json(event);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getEvents = async (req, res) => {
+  try {
+    const events = await Event.find();
+    res.json(events);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.updateEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedEvent = await Event.findByIdAndUpdate(id, req.body, { new: true });
+    res.json(updatedEvent);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.deleteEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedEvent = await Event.findByIdAndDelete(id);
+    res.json(deletedEvent);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
+
+// participantController.js
+
+const User = require('../models/User');
+
+exports.createUser = async (req, res) => {
+  try {
+    const newUser = new User(req.body);
+    const user = await newUser.save();
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Falha ao criar usuário", error: error.message });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedUser = await User.findByIdAndDelete(id);
+    res.json(deletedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    res.json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+dentro da pasta docs:
+
+//swagger.json
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Event Management System API",
+    "version": "1.0.0",
+    "description": "API para gerenciamento de eventos"
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Registrar um novo usuário",
+        "tags": ["Auth"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "example": "John Doe" },
+                "email": { "type": "string", "example": "john.doe@example.com" },
+                "password": { "type": "string", "example": "password123" }
+              },
+              "required": ["name", "email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Usuário registrado com sucesso" },
+          "400": { "description": "Erro de cadastro" },
+          "500": { "description": "Erro do servidor" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login de usuário",
+        "tags": ["Auth"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": { "type": "string", "example": "john.doe@example.com" },
+                "password": { "type": "string", "example": "password123" }
+              },
+              "required": ["email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Login bem-sucedido" },
+          "400": { "description": "Usuário inválido" },
+          "500": { "description": "Erro do servidor" }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "Obter todos os eventos",
+        "tags": ["Events"],
+        "responses": {
+          "200": {
+            "description": "Lista de eventos obtida com sucesso",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "example": "60a1b346b5e92d0015bd1e78" },
+                  "title": { "type": "string", "example": "Conferência de Tecnologia" },
+                  "description": { "type": "string", "example": "Um evento sobre novas tecnologias." },
+                  "date": { "type": "string", "format": "date", "example": "2023-06-01" },
+                  "location": { "type": "string", "example": "Centro de Convenções" },
+                  "imageUrl": { "type": "string", "example": "https://example.com/event.jpg" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Erro do servidor" }
+        }
+      },
+      "post": {
+        "summary": "Criar um novo evento",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string", "example": "Conferência de Tecnologia" },
+                "description": { "type": "string", "example": "Um evento sobre novas tecnologias." },
+                "date": { "type": "string", "format": "date", "example": "2023-06-01" },
+                "location": { "type": "string", "example": "Centro de Convenções" },
+                "imageUrl": { "type": "string", "example": "https://example.com/event.jpg" }
+              },
+              "required": ["title", "description", "date", "location"]
+            }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Evento criado com sucesso" },
+          "400": { "description": "Erro na criação do evento" },
+          "500": { "description": "Erro do servidor" }
+        }
+      }
+    },
+    "/events/{eventId}": {
+      "get": {
+        "summary": "Obter um evento específico",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do evento obtidos com sucesso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "example": "60a1b346b5e92d0015bd1e78" },
+                "title": { "type": "string", "example": "Conferência de Tecnologia" },
+                "description": { "type": "string", "example": "Um evento sobre novas tecnologias." },
+                "date": { "type": "string", "format": "date", "example": "2023-06-01" },
+                "location": { "type": "string", "example": "Centro de Convenções" },
+                "imageUrl": { "type": "string", "example": "https://example.com/event.jpg" }
+              }
+            }
+          },
+          "404": { "description": "Evento não encontrado" },
+          "500": { "description": "Erro do servidor" }
+        }
+      },
+      "put": {
+        "summary": "Atualizar um evento específico",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string", "example": "Conferência de Tecnologia" },
+                "description": { "type": "string", "example": "Um evento sobre novas tecnologias." },
+                "date": { "type": "string", "format": "date", "example": "2023-06-01" },
+                "location": { "type": "string", "example": "Centro de Convenções" },
+                "imageUrl": { "type": "string", "example": "https://example.com/event.jpg" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Evento atualizado com sucesso" },
+          "400": { "description": "Erro na atualização do evento" },
+          "404": { "description": "Evento não encontrado" },
+          "500": { "description": "Erro do servidor" }
+        }
+      },
+      "delete": {
+        "summary": "Excluir um evento específico",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Evento excluído com sucesso" },
+          "404": { "description": "Evento não encontrado" },
+          "500": { "description": "Erro do servidor" }
+        }
+      }
+    }
+  }
+}
+
+
+
+dentro da pasta middleware:
+
+//auth.js
+
+const jwt = require("jsonwebtoken");
+
+module.exports = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).json({ message: "Token não fornecido" });
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decodedToken.userId; 
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Token inválido" });
+  }
+};
+
+
+
+dentro da masta models:
+
+//Event.js
+
+const mongoose = require("mongoose");
+
+const eventSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String
+  },
+  date: {
+    type: Date,
+    required: true
+  },
+  location: {
+    type: String,
+    required: true
+  },
+  organizer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
+});
+
+const Event = mongoose.model("Event", eventSchema);
+
+module.exports = Event;
+
+<-------------a segunda parte do meu código------------->>>:
+
+//Participant.js
+
+const mongoose = require("mongoose");
+
+const participantSchema = new mongoose.Schema({
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event',
+    required: true
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
+});
+
+const Participant = mongoose.model("Participant", participantSchema);
+
+module.exports = Participant;
+
+
+//User.js
+
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  tipo: {
+    type: String,
+    enum: ['user', 'admin'],
+    required: true
+  }
+  
+});
+
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
+
+Dentro da pasta routes:
+
+//authRoutes.js
+
+const express = require("express");
+const router = express.Router();
+const authController = require("../controllers/authController");
+
+router.post("/register", authController.register);
+router.post("/login", authController.login);
+
+module.exports = router;
+
+
+
+//eventRoutes.js
+
+const express = require("express");
+const router = express.Router();
+const eventController = require("../controllers/eventController");
+const authMiddleware = require("../middleware/auth");
+
+router.post("/", authMiddleware, eventController.createEvent);
+router.get("/", authMiddleware, eventController.getEvents);
+router.put("/:id", authMiddleware, eventController.updateEvent);
+router.delete("/:id", authMiddleware, eventController.deleteEvent);
+
+module.exports = router;
+
+
+
+//participantRoutes.js
+
+const express = require("express");
+const router = express.Router();
+const participantController = require("../controllers/participantController");
+
+router.post("/", participantController.createUser);
+router.get("/", participantController.getAllUsers);
+router.put("/:id", participantController.updateUser);
+router.delete("/:id", participantController.deleteUser);
+router.get("/:id", participantController.getUserById);
+
+module.exports = router;
+
+Na pasta utils:
+
+//errorHandler.js
+
+module.exports = (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: "Ocorreu um erro no servidor" });
+  };
+  
+
+solto na pasta backend:
+
+//app.js
+
+const app = require("./server");
+const connectDB = require("./database");
+require('dotenv').config();
+
+connectDB();
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor está funcionando na porta ${PORT}`);
+});
+
+
+
+//database.js
+
+const mongoose = require("mongoose");
+require('dotenv').config();
+
+const dbURI = process.env.DB_URI;
+
+if (!dbURI) {
+  console.error("A variável de ambiente DB_URI não está definida no arquivo .env.");
+  process.exit(1);
+}
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(dbURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log("Conectado ao banco de dados com sucesso!");
+  } catch (err) {
+    console.error("Conexão com o banco de dados falhou:", err);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
+
+
+//server.js
+
+const express = require("express");
+const cors = require("cors");
+const authRoutes = require("./routes/authRoutes");
+const eventRoutes = require("./routes/eventRoutes");
+const participantRoutes = require("./routes/participantRoutes");
+const errorHandler = require("./utils/errorHandler");
+
+const app = express();
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200
+}));
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.status(200).json({ msg: "Bem vindo" });
+});
+
+app.use("/auth", authRoutes);
+app.use("/events", eventRoutes);
+app.use("/participants", participantRoutes);
+
+app.use(errorHandler);
+
+module.exports = app;
+
+
+Já na pasta frontend
+
+dentro da pasta src:
+
+Dentro da pasta pages:
+
+Existe cinco pastas dentro da pasta pages>
+
+Dentro da pasta Eventform
+
+//EventForm.js
+
+import React, { useState } from 'react';
+import api from '../../services/api';
+
+const EventForm = () => {
+  const [events, setEvents] = useState([]);
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    description: '',
+    date: '',
+    location: '',
+    imageUrl: '',
+  });
+  const [editIndex, setEditIndex] = useState(-1);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setNewEvent({ ...newEvent, [name]: value });
+  };
+
+  const addEvent = () => {
+    if (
+      newEvent.title.trim() !== '' &&
+      newEvent.description.trim() !== '' &&
+      newEvent.date.trim() !== '' &&
+      newEvent.location.trim() !== ''
+    ) {
+      setEvents([...events, { ...newEvent }]);
+      setNewEvent({
+        title: '',
+        description: '',
+        date: '',
+        location: '',
+        imageUrl: '',
+      });
+    }
+  };
+
+  const editEvent = (index) => {
+    setEditIndex(index);
+    setNewEvent(events[index]);
+  };
+
+  const saveEvent = async (event) => {
+    event.preventDefault();
+    try {
+      await api.post('/events', newEvent);
+      const updatedEvents = [...events];
+      updatedEvents[editIndex] = { ...newEvent };
+      setEvents(updatedEvents);
+      setNewEvent({
+        title: '',
+        description: '',
+        date: '',
+        location: '',
+        imageUrl: '',
+      });
+      setEditIndex(-1);
+      alert('Evento criado com sucesso!');
+    } catch (error) {
+      console.error('Falha ao criar evento', error);
+      alert('Falha ao criar evento. Por favor, tente novamente.');
+    }
+  };
+
+  const deleteEvent = (index) => {
+    const updatedEvents = events.filter((event, i) => i !== index);
+    setEvents(updatedEvents);
+  };
+
+  return (
+    <div>
+      <h2>Create Event</h2>
+      <form onSubmit={editIndex === -1 ? addEvent : saveEvent}>
+        <div>
+          <label>Title</label>
+          <input
+            type="text"
+            name="title"
+            value={newEvent.title}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Description</label>
+          <textarea
+            name="description"
+            value={newEvent.description}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Date</label>
+          <input
+            type="date"
+            name="date"
+            value={newEvent.date}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Location</label>
+          <input
+            type="text"
+            name="location"
+            value={newEvent.location}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Image URL</label>
+          <input
+            type="text"
+            name="imageUrl"
+            value={newEvent.imageUrl}
+            onChange={handleInputChange}
+          />
+        </div>
+        <button type="submit">
+          {editIndex === -1 ? 'Create Event' : 'Save Event'}
+        </button>
+      </form>
+      <ul>
+        {events.map((event, index) => (
+          <li key={index}>
+            <div>
+              <strong>{event.title}</strong>
+              <p>{event.description}</p>
+              <p>Date: {event.date}</p>
+              <p>Location: {event.location}</p>
+              {event.imageUrl && <img src={event.imageUrl} alt="Event" />}
+            </div>
+            <div>
+              <button onClick={() => editEvent(index)}>Edit</button>
+              <button onClick={() => deleteEvent(index)}>Delete</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default EventForm;
+
+
+//EventForm.css
+vazio
+
+
+Dentro da pasta Eventlist
+
+//EventList.css
+vazio
+
+//EventList.js
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const EventList = () => {
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/events`);
+      setEvents(response.data); 
+    } catch (error) {
+      console.error('Failed to fetch events', error);
+    }
+  }
+
+  return (
+    <div>
+      <h2>Event List</h2>
+      <div className="event-list">
+        {events.map(event => (
+          <div key={event.id} className="event">
+            <img src={event.imageUrl} alt={event.title} className="event-image" />
+            <div className="event-details">
+              <h3>{event.title}</h3>
+              <p>{event.description}</p>
+              <p>Date: {new Date(event.date).toLocaleDateString()}</p>
+              <p>Location: {event.location}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default EventList;
+
+
+Dentro da pasta Home
+
+//Home.css
+
+
+//Home.js
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Home.css'; 
+
+const Home = () => {
+  return (
+    <div className="home-container">
+      <header className="home-header">
+        <h1>Bem Vindo ao Gerenciador de Eventos</h1>
+        <p>Este é o gerenciador de eventos realizado por Luan Monteiro.</p>
+      </header>
+
+      <section className="about-section">
+        <h2>Sobre Nós</h2>
+        <p>O Gerenciador de Eventos é uma plataforma para organizar e gerenciar seus eventos favoritos com facilidade.</p>
+      </section>
+
+      <section className="recent-events">
+        <h2>Eventos Recentes</h2>
+        <div className="events-grid">
+          <div className="event">
+            <img src="/img/evento1.jpg" alt="Evento 1" className="event-image" />
+            <div className="event-details">
+              <h3>Natal</h3>
+              <p>A magia do natal é uma das coisas mais lindas que existe.</p>
+            </div>
+          </div>
+          <div className="event">
+            <img src="/img/evento2.jpg" alt="Evento 2" className="event-image" />
+            <div className="event-details">
+              <h3>Ano Novo</h3>
+              <p>Ano novo é tempo de renovação de vidas.</p>
+            </div>
+          </div>
+          <div className="event">
+            <img src="/img/evento3.jpg" alt="Evento 3" className="event-image" />
+            <div className="event-details">
+              <h3>Carnaval</h3>
+              <p>Carnaval é o que faz de nós brasileiros.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="testimonials">
+        <img src="/img/evento4.jpg" alt="Evento 1" className="event-image" />
+        <h2>O que dizem sobre nós</h2>
+        <div className="testimonial">
+          <p>"O Gerenciador de Eventos facilitou muito a organização dos nossos eventos anuais. Recomendo!"</p>
+          <h4>- Maria Silva</h4>
+        </div>
+        <div className="testimonial">
+          <p>"Uma plataforma indispensável para quem precisa gerenciar múltiplos eventos."</p>
+          <h4>- João Pereira</h4>
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <h2>Pronto para gerenciar seus eventos?</h2>
+        <p>Junte-se a nós e comece a organizar seus eventos hoje mesmo!</p>
+        <Link to="/register">
+          <button className="cta-button">Cadastre-se Agora</button>
+        </Link>
+      </section>
+
+      <footer className="home-footer">
+        <p>&copy; 2024 Gerenciador de Eventos por Luan Monteiro. Todos os direitos reservados.</p>
+      </footer>
+    </div>
+  );
+}
+
+export default Home;
+
+
+Dentro da pasta Login
+
+//Login.css
+
+  
+
+//Login.js
+
+import React, { useState, useContext } from 'react';
+import axios from 'axios';
+import './Login.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { AuthContext } from '../authContext';
+
+function Login() {
+  const { login } = useContext(AuthContext);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    axios.post('http://localhost:5000/auth/login', {
+      email: username,
+      password: password
+    })
+    .then(response => {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userType', response.data.tipo);
+
+      toast.success('Login bem-sucedido!', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+
+      // Atualiza o estado de autenticação
+      login(response.data.tipo === 'admin');
+
+      setTimeout(() => {
+        if (response.data.tipo === 'admin') {
+          window.location.href = '/admin-dashboard'; 
+        } else {
+          window.location.href = '/events'; 
+        }
+      }, 3000);
+    })
+    .catch(error => {
+      console.error('Erro no login:', error);
+      toast.error('Erro no login. Por favor, tente novamente.', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+    });
+  }
+
+  return (
+    <div className="login-container">
+      <ToastContainer />
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email</label>
+          <input
+            type="email"
+            className="form-style"
+            placeholder="Email"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />        
+        </div>
+        <div>
+          <label>Password</label>
+          <input
+            type="password"
+            className="form-style"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />        
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+}
+
+export default Login;
+
+
+Dentro da pasta Register
+
+//Register.css
+
+
+//Register.js
+
+import api from '../../services/api'; // Certifique-se que o caminho para api.js está correto
+import './Register.css';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+
+function Register() {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [wrongRegister, setWrongRegister] = React.useState(false);
+  const [newusername, setNewUsername] = React.useState('');
+  const [newemail, setNewEmail] = React.useState(''); 
+  const [newpassword, setNewPassword] = React.useState('');
+  const [registerSuccess, setRegisterSuccess] = React.useState(false);
+  const [registerError, setRegisterError] = React.useState(false);
+  const [isChecked, setIsChecked] = React.useState(false); 
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    axios.post('http://localhost:5000/auth/Register', {
+      email: username,
+      password: password
+    })
+
+    .then(response => {
+      localStorage.setItem('token', response.data.token);
+
+      window.location.href = '/CRUD';
+    })
+
+    .catch(error => {
+      console.error('Erro no Register:', error);
+      setWrongRegister(true);
+    });
+  }
+
+  const handleRegister = (event) => {
+    event.preventDefault();
+
+    axios.post('http://localhost:5000/auth/register', {
+      name: newusername,
+      email: newemail,
+      password: newpassword
+    })
+    .then(response => {
+      console.log('Registro bem-sucedido:', response.data);
+      setNewUsername('');
+      setNewEmail('');
+      setNewPassword('');
+      setRegisterSuccess(true);
+      setRegisterError(false);
+    })
+    .catch(error => {
+      console.error('Erro no registro:', error);
+      setRegisterError(true);
+      setRegisterSuccess(false);
+    });
+  }
+
+  return (
+    <div className="register-container">
+      <h2>Register</h2>
+      <form onSubmit={handleRegister}>
+        <div>
+          <label>Name</label>
+          <input
+                              type="text"
+                              className="form-style"
+                              placeholder="Full Name"
+                              value={newusername}
+                              onChange={(e) => setNewUsername(e.target.value)}
+                            />
+        </div>
+        <div>
+          <label>Email</label>
+        
+          <input
+                              type="email"
+                              className="form-style"
+                              placeholder="Email"
+                              value={newemail}
+                              onChange={(e) => setNewEmail(e.target.value)}
+                            />
+        
+        </div>
+        <div>
+          <label>Password</label>
+        
+          <input
+                              type="password"
+                              className="form-style"
+                              placeholder="Password"
+                              value={newpassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                            />
+        
+        </div>
+        <button type="submit" className="btn mt-4">Register</button>
+                          {registerError && <p className="error-message">Erro ao registrar. Por favor, tente novamente.</p>}
+                          {registerSuccess && <p className="success-message">Registro bem-sucedido!</p>}
+      </form>
+    </div>
+  );
+}
+
+export default Register;
+
+
+Solto na pasta pages:
+
+//authContext.js
+
+import React, { createContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode'; // Importação corrigida para jwtDecode
+import api from '../services/api';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token); // Utilização correta de jwtDecode
+      setIsAuthenticated(true);
+      setIsAdmin(decodedToken.tipo === 'admin');
+    }
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      const decodedToken = jwtDecode(token); // Utilização correta de jwtDecode
+      setIsAuthenticated(true);
+      setIsAdmin(decodedToken.tipo === 'admin');
+    } catch (error) {
+      console.error('Login falhou', error);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export { AuthContext };
+
+
+
+Dentro da pasta services:
+
+//api.js
+
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: process.env.BACK_APP_API_URL
+});
+
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, error => Promise.reject(error));
+
+export default api;
+
+
+
+Dentro da pasta styles:
+
+
+//App.css
+
+
+//global.css
+
+
+//index.css
+
+
+
+Solto na pasta frontend
+
+//App.js
+
+import React, { useContext, useState } from 'react';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { AuthContext, AuthProvider } from './pages/authContext';
+import Home from './pages/Home/Home';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import EventList from './pages/EventList/EventList';
+import EventForm from './pages/EventForm/EventForm';
+import { FaUserCircle } from 'react-icons/fa';
+import './styles/App.css';
+import './styles/index.css';
+
+function App() {
+  const { isAuthenticated, isAdmin, logout } = useContext(AuthContext);
+
+  return (
+    <Router>
+      <div className="app-container">
+        <header>
+          <nav>
+            <ul>
+              <li><Link to="/">Home</Link></li>
+              {isAuthenticated && <li><Link to="/events">Eventos</Link></li>}
+              {isAdmin && <li><Link to="/create-event">Criar Evento</Link></li>}
+              {!isAuthenticated && <li><Link to="/login">Login</Link></li>}
+              {!isAuthenticated && <li><Link to="/register">Cadastro</Link></li>}
+            </ul>
+          </nav>
+          {isAuthenticated && (
+            <div className="user-actions">
+              <FaUserCircle className="user-icon" />
+              <button className="logout-button" onClick={logout}>Logout</button>
+            </div>
+          )}
+        </header>
+        <main>
+          <div className="content">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/events" element={<EventList />} />
+              {isAdmin && <Route path="/create-event" element={<EventForm />} />}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Routes>
+          </div>
+        </main>
+        <ScrollToTopButton />
+        <Chat />
+      </div>
+    </Router>
+  );
+}
+
+export default function AppWrapper() {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
+}
+
+function ScrollToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  const toggleVisible = () => {
+    if (window.pageYOffset > 300) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  window.addEventListener('scroll', toggleVisible);
+
+  return (
+    <button
+      className="scroll-to-top"
+      onClick={scrollToTop}
+      style={{ display: visible ? 'inline' : 'none' }}
+    >
+      ↑
+    </button>
+  );
+}
+
+function Chat() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([
+    { text: 'Olá! Este é o chat para esclarecer dúvidas e pedir ajuda.', from: 'system' }
+  ]);
+
+  const toggleChat = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const sendMessage = () => {
+    if (message.trim()) {
+      setMessages([...messages, { text: message, from: 'user' }]);
+      setMessage('');
+    }
+  };
+
+  return (
+    <div className={`chat-container ${isOpen ? 'open' : ''}`}>
+      <div className="chat-header" onClick={toggleChat}>
+        Chat de Ajuda
+        <button className="chat-toggle">{isOpen ? '−' : '+'}</button>
+      </div>
+      {isOpen && (
+        <div className="chat-body">
+          <div className="messages">
+            {messages.map((msg, index) => (
+              <div key={index} className={`message ${msg.from}`}>
+                {msg.text}
+              </div>
+            ))}
+          </div>
+          <div className="chat-input">
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Digite sua mensagem..."
+            />
+            <button onClick={sendMessage}>Enviar</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+//index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './styles/App.css';
+import './styles/index.css';
+import './styles/global.css';
+import App from './App';
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+
+
+agora sabendo do projeto, me ajude a concertar a ligação da criação de gerencimaentos no front, com a criação no back

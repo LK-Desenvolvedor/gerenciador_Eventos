@@ -14,25 +14,6 @@ function Register() {
   const [registerError, setRegisterError] = React.useState(false);
   const [isChecked, setIsChecked] = React.useState(false); 
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    axios.post('http://localhost:5000/auth/Register', {
-      email: username,
-      password: password
-    })
-
-    .then(response => {
-      localStorage.setItem('token', response.data.token);
-
-      window.location.href = '/CRUD';
-    })
-
-    .catch(error => {
-      console.error('Erro no Register:', error);
-      setWrongRegister(true);
-    });
-  }
-
   const handleRegister = (event) => {
     event.preventDefault();
 

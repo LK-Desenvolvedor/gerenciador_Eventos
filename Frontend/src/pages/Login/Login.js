@@ -25,7 +25,7 @@ function Login() {
         autoClose: 3000
       });
 
-      // Atualiza o estado de autenticação
+      
       login(response.data.tipo === 'admin');
 
       setTimeout(() => {

@@ -15,9 +15,9 @@ body {
   }
   
 .content {
-    background-color: #fff; /* Cor de fundo da área de conteúdo */
+    background-color: #fff; 
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
     padding: 20px;
     width: 100%;
     max-width: 800px;
@@ -70,6 +70,6 @@ body {
     margin-right: 10px;
   }
   
-/* novo */
+
 
 

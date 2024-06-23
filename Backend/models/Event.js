@@ -18,7 +18,7 @@ const eventSchema = new mongoose.Schema({
   },
   organizer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'admin',
     required: true
   }
 });

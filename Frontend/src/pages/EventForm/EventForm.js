@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./EventForm.css";
 
 const EventForm = () => {
   const [events, setEvents] = useState([]);
@@ -12,12 +13,26 @@ const EventForm = () => {
   });
   const [editIndex, setEditIndex] = useState(-1);
 
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/events");
+      setEvents(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar eventos", error);
+    }
+  };
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setNewEvent({ ...newEvent, [name]: value });
   };
 
-  const addEvent = async () => {
+  const addEvent = async (event) => {
+    event.preventDefault();
     try {
       if (
         newEvent.title.trim() !== "" &&
@@ -25,8 +40,8 @@ const EventForm = () => {
         newEvent.date.trim() !== "" &&
         newEvent.location.trim() !== ""
       ) {
-        await axios.post("http://localhost:5000/events", newEvent);
-        setEvents([...events, newEvent]);
+        const response = await axios.post("http://localhost:5000/events", newEvent);
+        setEvents([...events, response.data]);
         setNewEvent({
           title: "",
           description: "",
@@ -34,6 +49,7 @@ const EventForm = () => {
           location: "",
           imageUrl: "",
         });
+        alert("Evento criado com sucesso!");
       } else {
         alert("Por favor, preencha todos os campos do evento.");
       }
@@ -58,15 +74,15 @@ const EventForm = () => {
         newEvent.location.trim() !== ""
       ) {
         if (editIndex === -1) {
-          await axios.post("http://localhost:5000/events", newEvent);
-          setEvents([...events, newEvent]);
+          const response = await axios.post("http://localhost:5000/events", newEvent);
+          setEvents([...events, response.data]);
         } else {
-          await axios.put(
+          const response = await axios.put(
             `http://localhost:5000/events/${events[editIndex]._id}`,
             newEvent
           );
           const updatedEvents = [...events];
-          updatedEvents[editIndex] = { ...newEvent };
+          updatedEvents[editIndex] = response.data;
           setEvents(updatedEvents);
         }
         setNewEvent({
@@ -100,7 +116,7 @@ const EventForm = () => {
   };
 
   return (
-    <div>
+    <div className="event-form-container">
       <h2>Create Event</h2>
       <form onSubmit={editIndex === -1 ? addEvent : saveEvent}>
         <input
@@ -146,15 +162,21 @@ const EventForm = () => {
           {editIndex === -1 ? "Create Event" : "Save Event"}
         </button>
       </form>
-      <ul>
+      <div className="event-list">
         {events.map((event, index) => (
-          <li key={index}>
-            {event.title} - {event.date} - {event.location}
-            <button onClick={() => editEvent(index)}>Edit</button>
-            <button onClick={() => deleteEvent(index)}>Delete</button>
-          </li>
+          <div key={index} className="event-item">
+            <div>
+              <h3>{event.title}</h3>
+              <p>{new Date(event.date).toLocaleDateString()}</p>
+              <p>{event.location}</p>
+            </div>
+            <div>
+              <button onClick={() => editEvent(index)}>Edit</button>
+              <button onClick={() => deleteEvent(index)}>Delete</button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

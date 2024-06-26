@@ -9,6 +9,7 @@ import EventForm from './pages/EventForm/EventForm';
 import { FaUserCircle } from 'react-icons/fa';
 import './styles/App.css';
 import './styles/index.css';
+import axios from 'axios';
 
 function App() {
   const { isAuthenticated, isAdmin, logout } = useContext(AuthContext);
@@ -105,6 +106,29 @@ function Chat() {
     if (message.trim()) {
       setMessages([...messages, { text: message, from: 'user' }]);
       setMessage('');
+      axios.post(
+        'https://api.openai.com/v1/completions',
+        {
+          model: 'text-davinci-003',
+          prompt: message,
+          max_tokens: 1500,
+          temperature: 0.5,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer YOUR_OPENAI_API_KEY`,
+          },
+        }
+      )
+      .then((response) => {
+        const botMessage = { text: response.data.choices[0].text, from: 'bot' };
+        setMessages((prevMessages) => [...prevMessages, botMessage]);
+      })
+      .catch((error) => {
+        const errorMessage = { text: `Error: ${error.message}`, from: 'system' };
+        setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      });
     }
   };
 
@@ -129,6 +153,7 @@ function Chat() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Digite sua mensagem..."
+              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
             />
             <button onClick={sendMessage}>Enviar</button>
           </div>

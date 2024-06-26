@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode'; // Importação corrigida para jwtDecode
 import api from '../services/api';
 
 const AuthContext = createContext();
@@ -7,13 +6,15 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      const decodedToken = jwtDecode(token); // Utilização correta de jwtDecode
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodifica o payload do token JWT
       setIsAuthenticated(true);
       setIsAdmin(decodedToken.tipo === 'admin');
+      setCurrentUser(decodedToken); // Armazena o payload do token como o usuário atual
     }
   }, []);
 
@@ -22,9 +23,10 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/auth/login', { email, password });
       const { token } = response.data;
       localStorage.setItem('token', token);
-      const decodedToken = jwtDecode(token); // Utilização correta de jwtDecode
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodifica o payload do token JWT
       setIsAuthenticated(true);
       setIsAdmin(decodedToken.tipo === 'admin');
+      setCurrentUser(decodedToken); // Armazena o payload do token como o usuário atual
     } catch (error) {
       console.error('Login falhou', error);
     }
@@ -34,10 +36,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
     setIsAdmin(false);
+    setCurrentUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isAdmin, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, currentUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

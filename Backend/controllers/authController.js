@@ -50,3 +50,13 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: "Desculpe o incoveniente, já vamos resolver o problema" });
   }
 };
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, 'SECRET_KEY'); // Substitua 'SECRET_KEY' pela sua chave secreta
+    const user = await User.findById(decoded.id);
+    res.json(user);
+  } catch (error) {
+    res.status(401).json({ message: 'Não autorizado' });
+  }
+};
